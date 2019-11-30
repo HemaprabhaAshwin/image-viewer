@@ -1,13 +1,15 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import './Home.css';
 import Header from '../../common/header/Header';
+
+/*Importing material-ui components */
 import { Card, CardHeader, CardContent, Typography } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
-//import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import moment from "moment";
+
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -26,80 +28,116 @@ const styles = theme => ({
     }
 });
 
+/*Defining Home class component*/
 class Home extends Component {
     constructor() {
         super();
-      //  this.addCommentOnClickHandler = this.addCommentOnClickHandler.bind(this);
         this.state = {
-            userphotos:null,
-            matchingsearch:null,
-            searched:"NO",
-            username:"",
-           /* ownerInfo:{
-                username: ""
-                },*/
-            comment:"",
-            addComment:"dispComment",
-            loggedIn:'false',
-            hasError:false,
-            accessToken:'',
+            userphotos: null,
+            matchingsearch: null,
+            searched: "NO",
+            username: "",
+            comment: "",
+            addComment: "dispComment",
+            loggedIn: 'false',
+            hasError: false,
+            accessToken: '',
         }
         this.singleUserUrl = "https://api.instagram.com/v1/users/self/?access_token=";
-        this.access_token=sessionStorage.getItem("access-token")
+        this.access_token = sessionStorage.getItem("access-token")
     }
+
+    /*Function for Search functionality*/
     searchboxfunction = (e) => {
 
         const searchkey = (e.target.value).toLowerCase();
         let posts = this.state.userphotos;
         let matchingsearch = [];
-        if(posts !== null && posts.length > 0){
-        matchingsearch = posts.filter((post) => 
-        (post.caption.text.split(/#/)[0].toLowerCase()).indexOf(searchkey) > -1 );
+
+        if (posts !== null && posts.length > 0) {
+            matchingsearch = posts.filter((post) =>
+                (post.caption.text.split(/\#/)[0].toLowerCase()).indexOf(searchkey) > -1);
+            this.setState({
+                matchingsearch: matchingsearch,
+                searched: "YES"
+            });
+        }
+
+
+    }
+
+    redirecting = () => {
+        //do nothing
+    }
+
+    /*Function to redirect to login page if the user has not logged in */
+    loginredirect = () => {
+        sessionStorage.removeItem("access-token");
         this.setState({
-                   matchingsearch: matchingsearch,
-                   searched:"YES"
+            loggedIn: false
         });
-       }
-
-
-}
-
-redirecting =()=>{
-//do nothing
-}
-loginredirect=()=>{
-sessionStorage.removeItem("access-token");
-this.setState({
-    loggedIn: false
-});
-this.props.history.push({pathname:'/'});
-}
-profileredirect=()=>{
-let accessToken = sessionStorage.getItem("access-token");
-this.props.history.push({pathname:'/profile/',state:{accessToken: accessToken
-    , loggedIn:'true'}});
-}
-
-heartClickHandler = (photoId, photoLikeIndex) => {
-
-let photolistlike = this.state.userphotos;
-let matchingsearchlike = this.state.matchingsearch;
-
-
-if(photolistlike !== null && photolistlike.length > 0){
-
-
-    // Updating main array
-    let postWithLike =  photolistlike.map((photoPostlike,photoIndex) => {
-        if(photoPostlike.id === photoId){
-            if (photoPostlike.user_has_liked) {
-                photoPostlike.user_has_liked = false;
-                photoPostlike.likes.count = (photoPostlike.likes.count) + 1;
-
-            } else {
-                photoPostlike.user_has_liked = true;
-                photoPostlike.likes.count = (photoPostlike.likes.count) - 1;
+        this.props.history.push({ pathname: '/' });
+    }
+    /*Funtion to redirect to Profile page , to be invoked while selecting "My account" menu */
+    profileredirect = () => {
+        let accessToken = sessionStorage.getItem("access-token");
+        this.props.history.push({
+            pathname: '/profile/', state: {
+                accessToken: accessToken
+                , loggedIn: 'true'
             }
+        });
+    }
+    
+    /*Handler invoked when user clicks the Like Heart Icon*/
+    heartClickHandler = (photoId, photoLikeIndex) => {
+
+        let photolistlike = this.state.userphotos;
+        let matchingsearchlike = this.state.matchingsearch;
+
+
+        if (photolistlike !== null && photolistlike.length > 0) {
+
+
+            // Updating main array
+            let postWithLike = photolistlike.map((photoPostlike, photoIndex) => {
+                if (photoPostlike.id === photoId) {
+                    if (photoPostlike.user_has_liked) {
+                        photoPostlike.user_has_liked = false;
+                        photoPostlike.likes.count = (photoPostlike.likes.count) + 1;
+
+                    } else {
+                        photoPostlike.user_has_liked = true;
+                        photoPostlike.likes.count = (photoPostlike.likes.count) - 1;
+                    }
+                } else { }
+                return photoPostlike;
+            });
+
+            //  Search key matching array
+            if (matchingsearchlike !== null && matchingsearchlike.length > 0) {
+                //Logic to be reversed if search function is triggered. Otherwise it overwrites it's own values
+                if (this.state.searched === "NO") {
+                    if (matchingsearchlike[photoLikeIndex].user_has_liked) {
+
+                        matchingsearchlike[photoLikeIndex].user_has_liked = false;
+                        matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count) + 1;
+                    } else {
+                        matchingsearchlike[photoLikeIndex].user_has_liked = true;
+                        matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count) - 1;
+                    }
+                } else {
+                    if (matchingsearchlike[photoLikeIndex].user_has_liked === false) {
+
+                        matchingsearchlike[photoLikeIndex].user_has_liked = false;
+                        matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count);
+                    } else {
+                        matchingsearchlike[photoLikeIndex].user_has_liked = true;
+                        matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count);
+                    }
+                }
+            }
+
         } else {}
         return photoPostlike;
     });
@@ -124,65 +162,64 @@ if(this.state.searched==="NO"){
         } else {
             matchingsearchlike[photoLikeIndex].user_has_liked = true;
          // matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count);
-        }
-    }
-    }
-    this.setState({
-        userphotos: postWithLike,
-        matchingsearch:matchingsearchlike
-    });
-}
-}
 
-addCommentOnClickHandler = (photoId, photoIndex) => {
-//  alert((this.title).childNodes[0].value);
-const inputcomment = document.getElementById('comment'+photoId).value;
-
-if (inputcomment === '') {
-    return;
-} else {
-    let photolist = this.state.userphotos;
-    if(photolist !== null && photolist.length > 0){
-    
-//    alert(photolist);
-//  Main array update
-    let postsWithComment =  photolist.map((photoPost,index) => {
-        if(photoPost.id === photoId){
-            photoPost.comments['data'] = photoPost.comments['data'] || [];
-            photoPost.comments['data'].push({
-                id: (photoPost.comments['data'].length + 1),
-                commentUser: this.state.username,
-                commentInput: inputcomment
+            /*Setting the state variables with the Likes made by the user */
+            this.setState({
+                userphotos: postWithLike,
+                matchingsearch: matchingsearchlike
             });
+
         }
-        return photoPost;
-    });
+    }
 
-//  Search key matching array
-    let matchingsearch = this.state.matchingsearch;
-//No need to run this if search function is triggered. Otherwise it creates duplicate entries
-if(this.state.searched==="NO"){
-if(matchingsearch!==null && matchingsearch.length>0){
-        matchingsearch[photoIndex].comments['data'] = matchingsearch[photoIndex].comments['data'] || [];
-        matchingsearch[photoIndex].comments['data'].push({
-                id: (matchingsearch[photoIndex].comments['data'].length + 1) ,
-                commentUser: this.state.username,
-                commentInput: inputcomment
-        });
-} }else {
-    
-}
+    /*Handler invoked when user adds comment and cliks on Add button */
+    addCommentOnClickHandler = (photoId, photoIndex) => {
 
+        const inputcomment = document.getElementById('comment' + photoId).value;
+
+        if (inputcomment === '') {
+            return;
+        } else {
+            let photolist = this.state.userphotos;
+            if (photolist !== null && photolist.length > 0) {
+
+                let postsWithComment = photolist.map((photoPost, index) => {
+                    if (photoPost.id === photoId) {
+                        photoPost.comments['data'] = photoPost.comments['data'] || [];
+                        photoPost.comments['data'].push({
+                            id: (photoPost.comments['data'].length + 1),
+                            commentUser: this.state.username,
+                            commentInput: inputcomment
+                        });
+                    }
+                    return photoPost;
+                });
+
+                //  Search key matching array
+                let matchingsearch = this.state.matchingsearch;
+                //No need to run this if search function is triggered. Otherwise it creates duplicate entries
+                if (this.state.searched === "NO") {
+                    if (matchingsearch !== null && matchingsearch.length > 0) {
+                        matchingsearch[photoIndex].comments['data'] = matchingsearch[photoIndex].comments['data'] || [];
+                        matchingsearch[photoIndex].comments['data'].push({
+                            id: (matchingsearch[photoIndex].comments['data'].length + 1),
+                            commentUser: this.state.username,
+                            commentInput: inputcomment
+                        });
+                    }
+                } else {
+
+                }
+                
+                /*Setting the state variables with the comments posted by the user */
                 this.setState({
                     userphotos: postsWithComment,
-                    matchingsearch:matchingsearch
+                    matchingsearch: matchingsearch
                 });
-//   alert(this.state.userphotos);
-//    innerspan.innerText= innerspan.innerText + "\n"+ "\n"+ username+": "+inputcomment.value;
-document.getElementById('comment'+photoId).value="";
-}
-}
-}
+                document.getElementById('comment' + photoId).value = "";
+            }
+        }
+    }
 
 componentDidMount(){
     this.mounted=true;
@@ -206,14 +243,19 @@ loggedIn = this.props.history.location.state.loggedIn;
 this.props.history.push({pathname:'/'});
 }
 
+        // Redirecting to login page if not logged in    
+        try {
+            accessToken = this.props.history.location.state.accessToken;
+            loggedIn = this.props.history.location.state.loggedIn;
+        } catch (exception) {
+            this.props.history.push({ pathname: '/' });
+        }
 
 
-
-// Getting data from API if logged in
-if(this.access_token===accessToken && loggedIn===true){
-that.setState({
-    loggedIn: 'true'
-
+        // Getting data from API if logged in
+        if (this.access_token === accessToken && loggedIn === true) {
+            that.setState({
+                loggedIn: 'true'
     });
 // Calling first API
 
@@ -330,5 +372,6 @@ return(this.mounted===true ? <div>
 :
 ""); 
 }
+
 }
 export default withStyles(styles)(Home);
