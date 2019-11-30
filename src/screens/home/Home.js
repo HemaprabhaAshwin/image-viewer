@@ -7,7 +7,6 @@ import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
-import logo from '../../assets/logo.png';
 import moment from "moment";
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
@@ -21,8 +20,9 @@ import { withStyles } from "@material-ui/styles";
 const styles = theme => ({
     profileAvatar: {
         margin: 10,
-        width: 40,
-        height: 40,
+        width: 60,
+        height: 60,
+        boxShadow: '1px 2px 2px grey'
     }
 });
 
@@ -263,8 +263,8 @@ return(this.mounted===true ? <div>
             <Card className="cardRoot">
             <CardHeader 
                         avatar={
-                            <Avatar className={classes.profileAvatar}>
-                            <img src={logo} alt="User Profile   logo"/>
+                            
+                            <Avatar className={classes.profileAvatar} src={photo.user.profile_picture} alt="User-Profile-logo">
                             </Avatar>
                         }
                         title={photo.caption.from.username}
