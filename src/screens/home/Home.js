@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
 import './Home.css';
 import Header from '../../common/header/Header';
-import { classes } from 'istanbul-lib-coverage';
-import logo from '../../assets/logo.png';
-import moment from "moment";
 
 /*Importing material-ui components */
 import { Card, CardHeader, CardContent, Typography } from '@material-ui/core';
@@ -11,6 +8,8 @@ import Avatar from '@material-ui/core/Avatar';
 import Grid from '@material-ui/core/Grid';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
+import moment from "moment";
+
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -18,29 +17,19 @@ import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 import Favorite from '@material-ui/icons/Favorite';
-
-/*Defining the styles to be used by the components in Home page */
+import { withStyles } from "@material-ui/styles";
+//import hearticon from '../../assets/hearticon.svg';
 const styles = theme => ({
-
-    root: {
-        width: '100%',
-    },
-
-    card: {
-        maxWidth: 145
-    },
-
     profileAvatar: {
         margin: 10,
         width: 60,
         height: 60,
+        boxShadow: '1px 2px 2px grey'
     }
 });
 
 /*Defining Home class component*/
 class Home extends Component {
-
-
     constructor() {
         super();
         this.state = {
@@ -64,6 +53,7 @@ class Home extends Component {
         const searchkey = (e.target.value).toLowerCase();
         let posts = this.state.userphotos;
         let matchingsearch = [];
+
         if (posts !== null && posts.length > 0) {
             matchingsearch = posts.filter((post) =>
                 (post.caption.text.split(/\#/)[0].toLowerCase()).indexOf(searchkey) > -1);
@@ -147,11 +137,38 @@ class Home extends Component {
                     }
                 }
             }
+
+        } else {}
+        return photoPostlike;
+    });
+    
+        //  Search key matching array
+    if(matchingsearchlike !== null && matchingsearchlike.length > 0) {
+//Logic to be reversed if search function is triggered. Otherwise it overwrites it's own values
+if(this.state.searched==="NO"){
+        if(matchingsearchlike[photoLikeIndex].user_has_liked ) {
+            
+            matchingsearchlike[photoLikeIndex].user_has_liked = false;
+            matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count) + 1;
+        } else {
+            matchingsearchlike[photoLikeIndex].user_has_liked = true;
+            matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count) - 1;
+        }
+    } else {
+        if(matchingsearchlike[photoLikeIndex].user_has_liked===false) {
+            
+            matchingsearchlike[photoLikeIndex].user_has_liked = false;
+         //   matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count);
+        } else {
+            matchingsearchlike[photoLikeIndex].user_has_liked = true;
+         // matchingsearchlike[photoLikeIndex].likes.count = (matchingsearchlike[photoLikeIndex].likes.count);
+
             /*Setting the state variables with the Likes made by the user */
             this.setState({
                 userphotos: postWithLike,
                 matchingsearch: matchingsearchlike
             });
+
         }
     }
 
@@ -204,14 +221,27 @@ class Home extends Component {
         }
     }
 
-    componentWillMount() {
-        let data = null;
-        let baseUrl = this.props.baseUrl;
-        let xhr = new XMLHttpRequest();
-        let that = this;
-        let access_token = this.access_token;
-        let accessToken = '';
-        let loggedIn = false;
+componentDidMount(){
+    this.mounted=true;
+}
+
+componentWillMount() {
+    this.mounted = false;
+let data = null;
+let baseUrl=this.props.baseUrl;
+let xhr = new XMLHttpRequest();
+let that = this;
+let access_token = this.access_token;
+let accessToken = '';
+let loggedIn = false;
+
+// Redirecting to login page if not logged in    
+try{
+accessToken = this.props.history.location.state.accessToken;
+loggedIn = this.props.history.location.state.loggedIn;
+} catch(exception){
+this.props.history.push({pathname:'/'});
+}
 
         // Redirecting to login page if not logged in    
         try {
@@ -222,119 +252,126 @@ class Home extends Component {
         }
 
 
-
-
         // Getting data from API if logged in
         if (this.access_token === accessToken && loggedIn === true) {
             that.setState({
                 loggedIn: 'true'
+    });
+// Calling first API
 
-            });
-
-            // Calling first API
-            let xhrprofiledata = new XMLHttpRequest();
-            xhrprofiledata.addEventListener("readystatechange", function () {
-                if (this.readyState === 4) {
-                    that.setState({
-                        username: JSON.parse(this.responseText).data.username,
-                    });
-                }
-            });
-            xhrprofiledata.open("GET", this.singleUserUrl + this.access_token);
-
-            xhrprofiledata.send(xhrprofiledata);
-
-            // Calling second API
-            xhr.addEventListener("readystatechange", function () {
-                if (this.readyState === 4) {
-                    that.setState({
-                        userphotos: JSON.parse(this.responseText).data,
-                        matchingsearch: JSON.parse(this.responseText).data
-                    });
-                }
-            });
-            xhr.open("GET", baseUrl + access_token);
-            xhr.setRequestHeader("Cache-Control", "no-cache");
-            xhr.send(data);
-        } else {
-            this.props.history.push({ pathname: '/' });
-        }
-    }
-
-    /*Rendering the Home page component */
-    render() {
-
-        return (<div>
-            <div>
-                <Header heading="Image Viewer" noSearchBox="box" baseUrl={this.props.baseUrl}
-                    loggedIn={this.state.loggedIn} searchenable={this.searchboxfunction} accc={this.access_token} prof={this.singleUserUrl}
-                    searchDisplay="dispSearch" iconDisplay="dispBlock" homeredirect={this.redirecting} profileredirect={this.profileredirect} logoutHandler={this.loginredirect} /></div>
-
-            <div className="homeBody">
-                <GridList cellHeight={"auto"} cols={2}>
-                    {(this.state.matchingsearch || []).map((photo, index) => (
-                        <GridListTile key={"grid" + photo.id} cols={photo.cols || 1}>
-                            <Grid container className={classes.root} spacing={10}>
-                                <Grid item>
-                                    <Card className={classes.card}>
-                                        <CardHeader
-                                            avatar={
-                                                <Avatar className={classes.profileAvatar}>
-                                                    <img src={logo} alt={photo.caption.from.username} />
-                                                </Avatar>
-                                            }
-                                            title={photo.caption.from.username}
-                                            subheader={moment.unix(photo.caption.created_time).format("DD/MM/YYYY HH:mm:ss")}
-                                        />
-                                        <CardContent>
-                                            <img src={photo.images.low_resolution.url} alt={photo.caption.text} className="imageProp" />
-                                            <hr />
-                                            <Typography variant="h6">{(photo.caption.text).split(/\#/)[0]}</Typography>
-                                            {photo.tags.map((photoId, tag) => <span key={photo.id, "hash#" + photo.caption.id} className="hash-tags">#{tag} </span>)}
-                                            <br></br>
-                                            <br></br>
-                                            <div className="likesProp">
-                                                <Typography variant="h5" >
-                                                    {photo.user_has_liked ?
-                                                        <FavoriteBorder className="noLike"
-                                                            onClick={this.heartClickHandler.bind(this, photo.id, index)} />
-                                                        :
-                                                        <Favorite className="Liked"
-                                                            onClick={this.heartClickHandler.bind(this, photo.id, index)} />
-                                                    }
-                                                </Typography>
-                                                <div className="likeCount">
-                                                    <span >{(photo.likes.count)} likes</span>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <Grid >
-                                                    <Grid >
-                                                        {(photo.comments.data || []).map((comment) => {
-                                                            return <Typography key={comment.id}>
-                                                                <span className="userNameSpan"><b>{comment.commentUser}:</b></span><span className="commenttext"> {comment.commentInput}</span>
-                                                            </Typography>
-                                                        })}
-                                                    </Grid>
-                                                </Grid>
-                                                <FormControl >
-                                                    <FormHelperText id={'formhelper' + photo.id} className={this.state.addComment}><span id={"innerspan" + photo.id} ></span></FormHelperText>
-                                                </FormControl> <br></br>  <br></br>
-                                                <FormControl>
-                                                    <InputLabel htmlFor="comment">Add a Comment</InputLabel>
-                                                    <Input id={"comment" + photo.id} type="text" />
-                                                </FormControl>
-                                                <Button id={"addcomment" + photo.id} variant="contained" color="primary" onClick={this.addCommentOnClickHandler.bind(this, photo.id, index)}>ADD</Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </Grid>
-                            </Grid>
-
-                            )</GridListTile>))}
-                </GridList>
-            </div>
-        </div>)
-    }
+let xhrprofiledata = new XMLHttpRequest();
+xhrprofiledata.addEventListener("readystatechange", function () {
+if (this.readyState === 4) {
+that.setState({
+    username: JSON.parse(this.responseText).data.username,
+}); 
 }
-export default Home;
+});
+xhrprofiledata.open("GET", this.singleUserUrl + this.access_token);
+//xhrUserProfile.setRequestHeader("Cache-Control", "no-cache");
+xhrprofiledata.send(xhrprofiledata);
+
+// Calling second API
+xhr.addEventListener("readystatechange", function () {
+if (this.readyState === 4) {
+that.setState({
+userphotos: JSON.parse(this.responseText).data,
+matchingsearch: JSON.parse(this.responseText).data
+});
+}
+});
+xhr.open("GET", baseUrl+access_token);
+xhr.setRequestHeader("Cache-Control", "no-cache");
+xhr.send(data);        
+} else {
+this.props.history.push({pathname:'/'});
+}
+}
+
+render(){
+const { classes } = this.props;
+return(this.mounted===true ? <div>
+        <div>
+            <Header heading="Image Viewer" noSearchBox="box" baseUrl={this.props.baseUrl}
+        loggedIn={this.state.loggedIn} searchenable={this.searchboxfunction}accc={this.access_token} prof={this.singleUserUrl}
+        searchDisplay="dispSearch" iconDisplay="dispBlock" homeredirect={this.redirecting} profileredirect={this.profileredirect} logoutHandler={this.loginredirect}/></div>
+
+<div className= "homeBody">
+<GridList className="HomeGridListRoot" cellHeight={"auto"}  cols={2}>
+{(this.state.matchingsearch || []).map((photo,index)=>(
+    <GridListTile className="HomeGridListTile" key={"grid" + photo.id} cols={photo.cols|| 1}>
+        <Grid className="gridContainerRoot" container className={classes.root} spacing={10}>
+            <Grid className="gridItemRoot"item>
+            <Card className="cardRoot">
+            <CardHeader 
+                        avatar={
+                            
+                            <Avatar className={classes.profileAvatar} src={photo.user.profile_picture} alt="User-Profile-logo">
+                            </Avatar>
+                        }
+                        title={photo.caption.from.username}
+                        //   subheader={ moment(photo.caption.created_time,"x").format("DD MMM YYYY hh:mm a")}
+                        subheader={moment.unix(photo.caption.created_time).format("DD/MM/YYYY HH:mm:ss")}
+            />
+            <CardContent className="cardContentRoot">
+                    <img src={photo.images.low_resolution.url} alt={photo.caption.text} className="imageProp" />
+                    <hr/>
+                    <Typography variant="h6">{(photo.caption.text).split(/#/)[0]}</Typography>
+                    {photo.tags.map((tag,index)=><span key={"span"+photo.id+index} className="hash-tags">#{tag} </span>)}
+                    <br></br>
+                    <br></br>
+                    <div className="likesProp">
+                        <Typography variant="h5" >
+                        {photo.user_has_liked ? 
+                            <FavoriteBorder className="noLike" 
+                            onClick={this.heartClickHandler.bind(this, photo.id, index)}/>
+                                :
+                            <Favorite className="Liked" 
+                            onClick={this.heartClickHandler.bind(this, photo.id, index)}/>                                                                                                       
+                        }
+                        </Typography>
+                                <div className="likeCount">
+                                         <span >{(photo.likes.count)} likes</span>
+                                            </div>
+                                    </div>
+                                    <div >
+                    <Grid>
+                        <Grid >
+                            {(photo.comments.data || []).map((comment) => {
+                                return<div> <Typography className="commentTypography" key={comment.id}>
+                                   <span className="userNameSpan"><b>{comment.commentUser}:</b></span>
+                                    <span className="commenttext"> {comment.commentInput}</span>
+                                </Typography></div>
+                            })}
+                        </Grid>
+                    </Grid>
+                    <div className="innercommentbox">
+                    <FormControl >
+                        <FormHelperText id={'formhelper' + photo.id} className={this.state.addComment}>
+                            <span id={"innerspan" + photo.id} ></span>
+                        </FormHelperText>
+                    </FormControl> <br></br>  <br></br>
+                    <FormControl className="commentinputbox">
+                        <InputLabel htmlFor={"comment"+photo.id}>Add a Comment</InputLabel>
+                        <Input id={"comment"+photo.id} type="text"  />
+                    </FormControl>
+                    <Button className="addcommentbutton" id={"addcomment" + photo.id} variant="contained" color="primary" 
+                        onClick={this.addCommentOnClickHandler.bind(this, photo.id, index)}>ADD
+                    </Button>
+                    </div>
+                    </div>
+            </CardContent>
+            </Card>
+            </Grid>
+        </Grid>         
+        
+    )</GridListTile> ))}
+    </GridList>
+</div>              
+</div>
+:
+""); 
+}
+
+}
+export default withStyles(styles)(Home);
