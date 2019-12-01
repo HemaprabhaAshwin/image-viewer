@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import './Home.css';
 import Header from '../../common/header/Header';
+
+/*Importing material-ui components */
 import { Card, CardHeader, CardContent, Typography } from '@material-ui/core';
 import Avatar from '@material-ui/core/Avatar';
-//import { withStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import moment from "moment";
+
 import FormControl from '@material-ui/core/FormControl';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -26,6 +28,7 @@ const styles = theme => ({
     }
 });
 
+/*Defining Home class component*/
 class Home extends Component {
     constructor() {
         super();
@@ -35,9 +38,6 @@ class Home extends Component {
             matchingsearch: null,
             searched: "NO",
             username: "",
-            /* ownerInfo:{
-            username: ""
-            },*/
             comment: "",
             addComment: "dispComment",
             loggedIn: 'false',
@@ -48,29 +48,35 @@ class Home extends Component {
         this.access_token = sessionStorage.getItem("access-token")
     }
 
+
     //Enable search funtion on Home page
     searchboxfunction = (e) => {
         const searchkey = (e.target.value).toLowerCase();
         let posts = this.state.userphotos;
         let matchingsearch = [];
+
         if (posts !== null && posts.length > 0) {
             matchingsearch = posts.filter((post) =>
                 (post.caption.text.split(/#/)[0].toLowerCase()).indexOf(searchkey) > -1);
+
             this.setState({
                 matchingsearch: matchingsearch,
                 searched: "YES"
             });
         }
-    }
+
 
     /*For redirecting to Home from Profile page. No code required here
     Gave dummy function to maintain consistency in passing props
     */
+
     redirecting = () => {
         //do nothing
     }
 
+
     //Logout action from drop down menu on profile icon
+
     loginredirect = () => {
         sessionStorage.removeItem("access-token");
         this.setState({
@@ -115,6 +121,7 @@ class Home extends Component {
             // Search filtered array update. Maintaining two arrays to display cards with and without Search
             if (matchingsearchlike !== null && matchingsearchlike.length > 0) {
 
+
                 //Logic to be reversed if search function is triggered. Otherwise it overwrites it's own values
                 if (this.state.searched === "NO") {
                     if (matchingsearchlike[photoLikeIndex].user_has_liked) {
@@ -134,10 +141,12 @@ class Home extends Component {
                     }
                 }
             }
+
             this.setState({
                 userphotos: postWithLike,
                 matchingsearch: matchingsearchlike
             });
+
         }
     }
 
@@ -154,6 +163,7 @@ class Home extends Component {
 
 
                 //  Main array update. Maintaining two arrays to display cards with and without Search
+
                 let postsWithComment = photolist.map((photoPost, index) => {
                     if (photoPost.id === photoId) {
                         photoPost.comments['data'] = photoPost.comments['data'] || [];
@@ -166,7 +176,9 @@ class Home extends Component {
                     return photoPost;
                 });
 
+
                 // Search filtered array update. Maintaining two arrays to display cards with and without Search
+
                 let matchingsearch = this.state.matchingsearch;
                 //No need to run this if search function is triggered. Otherwise it creates duplicate entries
                 if (this.state.searched === "NO") {
@@ -181,12 +193,15 @@ class Home extends Component {
                 } else {
 
                 }
+
                 this.setState({
                     userphotos: postsWithComment,
                     matchingsearch: matchingsearch
                 });
+
                 //   alert(this.state.userphotos);
                 //    innerspan.innerText= innerspan.innerText + "\n"+ "\n"+ username+": "+inputcomment.value;
+
                 document.getElementById('comment' + photoId).value = "";
             }
         }
@@ -215,9 +230,6 @@ class Home extends Component {
         } catch (exception) {
             this.props.history.push({ pathname: '/' });
         }
-
-
-
 
         // Getting data from API if logged in
         if (this.access_token === accessToken && loggedIn === true) {
@@ -347,5 +359,6 @@ profileredirect={this.profileredirect} logoutHandler={this.loginredirect} /></di
 :
 "");
 }
+
 }
 export default withStyles(styles)(Home);
