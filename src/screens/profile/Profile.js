@@ -18,7 +18,6 @@ import FormHelperText from "@material-ui/core/FormHelperText";
 import GridList from "@material-ui/core/GridList";
 import GridListTile from "@material-ui/core/GridListTile";
 import Grid from "@material-ui/core/Grid";
-import Divider from "@material-ui/core/Divider";
 import Container from "@material-ui/core/Container";
 import FavoriteBorder from '@material-ui/icons/FavoriteBorder';
 
@@ -26,38 +25,39 @@ const styles = theme => ({
   bigAvatar: {
     margin: 10,
     width: 120,
-    height: 120,
+    height:120,
     boxShadow: '1px 2px 2px grey',
     marginRight:80
   },
+  profileAvatar: {
+    margin: 10,
+    width: 60,
+    height: 60,
+    boxShadow: '1px 2px 2px grey'
+},
   fab: {
     width:50
   },
   
   paper: {
     position: "absolute",
-    width: '100%',
-    backgroundColor: "white",
-    padding: 16,
-    outline: "none",
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)'
-  },
-  
-  paper_big: {
-    position: "absolute",
-    width: '50%',
-    height: '40%',
     backgroundColor: "white",
     padding: 16,
     outline: "none",
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
+  },
+  
+  paper_big: {
+    position: "absolute",
+    backgroundColor: "white",
+    padding: 16,
+    outline: "none",
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)'
   }
-  
-  
 });
 
 class Profile extends Component {
@@ -227,7 +227,7 @@ EditFullNameModalCloseHandler = () => {
   redirecting =()=>{
    let accessToken = sessionStorage.getItem("access-token");
 			//Route to home here  
-				this.props.history.push({pathname:'/home/',state:{ accessToken: accessToken
+				this.props.history.push({pathname:'/home',state:{ accessToken: accessToken
 				, loggedIn:true}});
 }
 
@@ -297,17 +297,17 @@ render(){
                 <Avatar className={classes.bigAvatar} alt={this.state.username} src={this.state.profile_picture} />
             </Grid>
 
-          <Grid className="gridUserDetails" item><Typography variant="h6" component="h6"> {this.state.username} </Typography>
+          <Grid className="gridUserDetails" item><Typography variant="h6"> {this.state.username} </Typography>
            <Grid container spacing={3} alignItems="center" justify="space-between"  >
            <Grid item><Typography variant="subtitle2">Posts: {this.state.media}</Typography></Grid> 
            <Grid item><Typography variant="subtitle2">Follows: {this.state.follows}</Typography></Grid> 
            <Grid item><Typography variant="subtitle2">Followed By: {this.state.followed_by}</Typography></Grid>
            </Grid>       
            <Grid  container spacing={2}  alignItems="center" justify="flex-start" >
-           <Grid item><Typography variant="h6">{this.state.full_name}</Typography></Grid>
+           <Grid item><Typography className="userFullName" variant="h6">{this.state.full_name}</Typography></Grid>
            <Grid className="userNameEdit" item><Fab color="secondary"  aria-label="Edit"  className={classes.fab}  onClick={this.EditFullNameModalOpenHandler}>      
            <Create /> </Fab>
-           <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={this.state.editNameOpen} onClose={this.EditFullNameModalCloseHandler} >
+           <Modal className="profileModal" aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={this.state.editNameOpen} onClose={this.EditFullNameModalCloseHandler} >
            <div className={classes.paper}><Typography variant="h6" id="modal-title" className="modal-heading"> Edit  </Typography> 
            <FormControl required className="formControl">
                 <InputLabel htmlFor="username">Full Name </InputLabel>
@@ -339,18 +339,19 @@ render(){
             <Modal aria-labelledby="simple-modal-title" aria-describedby="simple-modal-description" open={this.state.postOpen} onClose={this.ClickPostImageCloseHandler}>
               <div className={classes.paper_big}>
                 <Grid className="gridContainer"  container spacing={3}>
-                  <Grid  className="gridItem" item xs={6}>
-                    <img width="100%" height='100%' src={ this.state.selectedPost.images.standard_resolution.url} alt={this.state.selectedPost.caption.text.split("\n")[0]}/>
+                  <Grid  className="gridItemImage" item xs={6}>
+                    <img className="imageDisplay" src={ this.state.selectedPost.images.standard_resolution.url} alt={this.state.selectedPost.caption.text.split("\n")[0]}/>
                   </Grid>
-                  <Grid className="gridItem" item xs={6}>
+                  <Grid className="gridItemComments" item xs={6}>
                     <Grid container spacing={3} alignItems="center" justify="flex-start"  >
                     <Grid item>  
-                     <Avatar src={this.state.selectedPost.user.profile_picture} alt={this.state.selectedPost.user.username} />
+                     <Avatar className={classes.profileAvatar}src={this.state.selectedPost.user.profile_picture} alt={this.state.selectedPost.user.username} />
                      </Grid>
-                      <Grid item><Typography variant="subtitle2">{this.state.selectedPost.user.username}</Typography>
-                      </Grid>
+                      <Grid item><Typography variant="h6">{this.state.selectedPost.user.username}</Typography>
+                     
+                      </Grid> 
                     </Grid>
-                    <Divider light />
+                    <hr className="modalRule"/>
                     <Grid container spacing={3} alignItems="center" justify="flex-start"  >
                     <Grid item><Typography variant="h6"> {this.state.selectedPost.caption.text.split("\n")[0]}</Typography>
                      </Grid>
@@ -358,7 +359,7 @@ render(){
                     <Grid container spacing={3} alignItems="center" justify="flex-start"  >
                       <Grid item>
                         {(this.state.selectedPost.tags || []).map((tag, i) => {
-                          return (<Typography key={tag} variant="caption" color="primary">{" "}
+                          return (<Typography key={tag} variant="h7" color="primary">{" "}
                               <span className="tagSize">#{tag}</span> 
                              </Typography>
                           );
@@ -369,9 +370,9 @@ render(){
                     <Grid item className="min-height-comments-box">
                         {(this.state.selectedPost.comments.data || []).map((comment, i) => {
                             return (
-                              <Typography  key={comment.id} variant="h8" display="block">
+                              <Typography  key={comment.id} variant="h6" display="block">
                               <strong>{comment.comment_by} :</strong>{" "}
-                                {comment.comment_value}
+                               <span className="addedComments"> {comment.comment_value} </span>
                               </Typography>
                             );
                           }
