@@ -29,28 +29,32 @@ constructor() {
 	}
 }
 
+// Username field handler
 inputUsernameChangeHandler = (e) => {
 	this.setState({ username: e.target.value });
 }
 
+// Password field handler
 inputLoginPasswordChangeHandler = (e) => {
 	this.setState({ loginPassword: e.target.value });
 }
 
+//Login button handler
 loginClickHandler = () => {
 
 	let accessToken = "8661035776.d0fcd39.39f63ab2f88d4f9c92b0862729ee2784";
-//	let username="validuser";
-//	let password="validpassword";
-	let username="s";
-	let password="s";
+	let username="validuser";
+	let password="validpassword";
+//	let username="s";
+//	let password="s";
 	let that = this;
 	if(that.state.username===username &&  that.state.loginPassword===password ){  
 			sessionStorage.setItem("access-token", accessToken);
-			//Route to home here  
-				this.props.history.push({pathname:'/home/',state:{ accessToken: accessToken
+			//Route to home here when credentials are valid
+				this.props.history.push({pathname:'/home',state:{ accessToken: accessToken
 				, loggedIn:true}});
 		} else {
+			// Set logged in status to false and remain in the login page
 			sessionStorage.setItem("access-token", "null");
 			if(that.state.username==="" || that.state.loginPassword===""){
 				this.state.username === "" ? this.setState({ usernameRequired: "dispBlock" }) : this.setState({ usernameRequired: "dispNone" });
@@ -73,17 +77,18 @@ loginClickHandler = () => {
 render(){
 return(
 
-<div >
+<div>
 <div className="header-container">
 <Header heading="Image Viewer" searchDisplay="dispNone" iconDisplay="dispNone"/><br />
 </div>
+<div className="card-main">
 <div className="card-container">
 <Card className="cardStyle">
 <CardContent>
-	<Typography variant="h3" >
+	<Typography variant="h4" >
 	LOGIN
 	</Typography>
-	<FormControl required>
+	<FormControl className="inputUsername" required>
 		<InputLabel htmlFor="username">Username</InputLabel>
 		<Input id="username" type="text" username={this.state.username} onChange={this.inputUsernameChangeHandler} />
 		<FormHelperText className={this.state.usernameRequired}>
@@ -91,7 +96,7 @@ return(
 		</FormHelperText>
 	</FormControl>
 	<br /><br />
-	<FormControl required>
+	<FormControl className="inputPassword" required>
 		<InputLabel htmlFor="loginPassword">Password</InputLabel>
 		<Input id="loginPassword" type="password" loginpassword={this.state.loginPassword} onChange={this.inputLoginPasswordChangeHandler} />
 		<FormHelperText className={this.state.loginPasswordRequired}>
@@ -106,11 +111,11 @@ return(
 			</span>
 		</FormControl>
 	}
-
 	<br /><br />
 	<Button variant="contained" color="primary" onClick={this.loginClickHandler}>LOGIN</Button>
 </CardContent>
 </Card>
+</div>
 </div>
 </div>)
 }
