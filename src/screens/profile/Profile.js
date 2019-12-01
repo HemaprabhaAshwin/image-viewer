@@ -282,7 +282,7 @@ render(){
             prof={this.singleUserUrl} 
             noSearchBox="dispNone" 
             searchDisplay="dispSearch" 
-            iconDisplay="dispBlock"
+            iconDisplay="s"
             logoutHandler={this.loginredirect} 
             homeredirect={this.redirecting}
             />
