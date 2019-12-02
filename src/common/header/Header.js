@@ -43,9 +43,10 @@ let ownerData = null;
 let xhr = new XMLHttpRequest();
 let that = this;
 xhr.addEventListener("readystatechange", function () {
-if (this.readyState === 4) {
+if (this.readyState === 4 && that.props.iconDisplay==="dispBlock") {
 that.setState({
 ownerInfo_self: JSON.parse(this.responseText).data
+
 });
 }
 })
